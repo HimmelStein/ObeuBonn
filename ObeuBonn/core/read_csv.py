@@ -11,6 +11,7 @@ def get_all_bonn_budget_files(fPath, pattern='PlandatenErgebnisplan', end='csv')
     """
     get all Bonn budget datasets
     :param fPath: search path
+    :param end: file name end with this string
     :return: a list of csv filenames with absolute file name
     """
     rlt = []
@@ -172,3 +173,111 @@ def visualize_patterns(jsonPath, subplotN=7, end='_norm.json', minusFlag=1, low 
     plt.show()
     return vv
 
+
+def collect_vocabulary_from_datasets(path="/Users/tdong/data/bonn",
+                                     sep = ';',
+                                     outputFile="vocab.txt"):
+    """
+    create all vocabularies from the datasets, which are located at path, with patttern, and end with <end>
+    :param path:
+    :param sep: column separator used in csv
+    :param outputFile: save the vocabularies in the outputfile
+    """
+    vlst = []
+    with open(os.path.join(path, outputFile), 'w+') as ofh:
+        for bfile in get_all_bonn_budget_files(fPath="/Users/tdong/data/bonn", pattern='Plan'):
+            with open(os.path.join(path, bfile),  encoding='iso-8859-3') as fh:
+                for ln in fh.readlines():
+                    for word in ln[:-1].split(sep):
+                        word = word.strip()
+                        if word not in vlst:
+                            ofh.write(word+"\n")
+                            vlst.append(word)
+    print("total vocab size:", len(vlst))
+
+
+def collect_columns_from_datasets(path="/Users/tdong/data/bonn", sep = ';', outputFile="columns.txt"):
+    """
+    :param path:
+    :param pattern:
+    :param end:
+    :param outputFile:
+    :return:
+    """
+    vlst = []
+    with open(os.path.join(path, outputFile), 'w+') as ofh:
+        for bfile in get_all_bonn_budget_files(fPath="/Users/tdong/data/bonn", pattern='Plan'):
+            with open(os.path.join(path, bfile), encoding='iso-8859-3') as fh:
+                ln = fh.readline()
+                for word in ln[:-1].split(sep):
+                    word = word.strip()
+                    if word not in vlst:
+                        ofh.write(word + "\n")
+                        vlst.append(word)
+    print("total column size:", len(vlst))
+
+
+def collect_vocabulary_for_each_dimension(path="/Users/tdong/data/bonn", columnsFile="columns.txt", sep=';'):
+    """
+
+    :param path:
+    :param columnsFile:
+    :return: for each column, create a file of vocab in this column
+    """
+    with open(os.path.join(path,columnsFile), encoding='iso-8859-3') as ifh:
+        for column in ifh.readlines():
+            column = column[:-1]
+            open(os.path.join(path, column + ".txt"), 'w+')
+            vlst = []
+            with open(os.path.join(path, column+".txt"), 'a+') as ofh:
+                for bfile in get_all_bonn_budget_files(fPath="/Users/tdong/data/bonn", pattern='Plan'):
+                    with open(os.path.join(path, bfile), encoding='iso-8859-3') as fh:
+                        clst = fh.readline()[:-1].split(sep)
+                        clst = [ele.strip() for ele in clst]
+                        if column in clst:
+                            index = clst.index(column)
+                            for ln in fh.readlines():
+                                word = ln[:-1].split(sep)[index].strip()
+                                if word not in vlst:
+                                    ofh.write(word+"\n")
+                                    vlst.append(word)
+            print("creat ", column, ".txt with size of ", len(vlst))
+
+
+def encode_vocabulary_for_dimension_and_measures(inputFile="", outputFile=""):
+    """
+    for all datasets, encode vocabulary for each dimension and measure
+    :param inputFile:
+    :param outputFile:
+    :return:
+    """
+    pass
+
+
+def dimension_reduction_of_super_cube():
+    """
+
+    :return:
+    """
+    pass
+
+
+def super_cube_visualization():
+    """
+
+    :return:
+    """
+    pass
+
+
+def CNN_for_pattern_identification():
+    """
+    :return:
+    """
+    pass
+
+
+if __name__ == "__main__":
+    collect_vocabulary_for_each_dimension()
+    # collect_columns_from_datasets()
+    # collect_vocabulary_from_datasets()
